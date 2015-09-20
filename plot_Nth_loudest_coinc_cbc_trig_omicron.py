@@ -40,6 +40,8 @@ parser.add_argument('--H1-omicron-dir', type=str, required=True,
         help='Directory containing H1 Omicron triggers. Ex: /home/detchar/triggers/ER7/H1/')
 parser.add_argument('--omicron-snr-thresh', type=int, required=True, default=5,
         help='SNR threshold for choosing which Omicron triggers to plot.')
+parser.add_argument('--time-window', type=float, default = 32.0,
+        help='Time window to plot around Nth loudest trigger')
 args = parser.parse_args()
 
 logging.info('Reading HDF files')
@@ -88,10 +90,10 @@ mass2 = template_file['mass2'][H1_template_id]
 
 H1_hoft_chan = 'H1:GDS-CALIB_STRAIN'
 L1_hoft_chan = 'L1:GDS-CALIB_STRAIN'
-H1_omicron_start_time = H1_cbc_end_time - 100
-H1_omicron_end_time = H1_cbc_end_time + 100
-L1_omicron_start_time = L1_cbc_end_time - 100
-L1_omicron_end_time = L1_cbc_end_time + 100
+H1_omicron_start_time = H1_cbc_end_time - args.time_window
+H1_omicron_end_time = H1_cbc_end_time + args.time_window
+L1_omicron_start_time = L1_cbc_end_time - args.time_window
+L1_omicron_end_time = L1_cbc_end_time + args.time_window
 
 logging.info('Fetching omicron triggers')
 
