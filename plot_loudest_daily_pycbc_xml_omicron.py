@@ -29,6 +29,8 @@ parser.add_argument('--window',type=float,required=False,default=40.0,
 		help='Script will find loudest trigger within +/- window seconds')
 parser.add_argument('--plot-window',type=float,required=True,default=40.0,
 		help='Plot will display +/- plot-window seconds around the loudest trigger')
+parser.add_argument('--N', type=int, required=False, default=1,
+        help='Code will plot the Nth loudest trigger')
 args = parser.parse_args()
 
 events = SnglInspiralTable.read(args.single_ifo_trigs)
@@ -44,10 +46,10 @@ end_time_ns = events.get_column('end_time_ns')
 end_times = np.add(end_time,end_time_ns*10**-9)
 
 if args.ranking_statistic == 'snr':
-    highest_idx = np.argsort(snr)[-1]
+    highest_idx = np.argsort(snr)[-args.N]
     trig_time = end_times[highest_idx]
 elif args.ranking_statistic == 'newsnr':
-    highest_idx = np.argsort(newsnr)[-1]
+    highest_idx = np.argsort(newsnr)[-args.N]
     trig_time = end_times[highest_idx]
 
 m1 = events[highest_idx].mass1
