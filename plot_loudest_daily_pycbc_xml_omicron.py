@@ -10,6 +10,7 @@ matplotlib.use('Agg')
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
+
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 
@@ -69,6 +70,7 @@ plot_freq = omicron_freq[window_idx]
 plot_times = omicron_times[window_idx]
 
 logging.info('Loudest Omicron trig has SNR ' + str(max(omicron_snr)))
+
 
 from pycbc.workflow.segment import fromsegmentxml
 import pycbc.pnutils
