@@ -50,9 +50,10 @@ elif args.ranking_statistic == 'newsnr':
     highest_idx = np.argsort(newsnr)[-1]
     trig_time = end_times[highest_idx]
 
-mass1 = events[highest_idx].mass1
-mass2 = events[highest_idx].mass2
-
+m1 = events[highest_idx].mass1
+m2 = events[highest_idx].mass2
+s1z = events[highest_idx].spin1z
+s2z = events[highest_idx].spin2z
 
 hoft_chan = str(ifo) + ":GDS-CALIB_STRAIN"
 start_time = trig_time - args.plot_window
@@ -71,14 +72,23 @@ plot_times = omicron_times[window_idx]
 
 logging.info('Loudest Omicron trig has SNR ' + str(max(omicron_snr)))
 
-
+from pycbc.waveform import get_td_waveform, frequency_from_polarizations, amplitude_from_polarizations
 from pycbc.workflow.segment import fromsegmentxml
 import pycbc.pnutils
 
-f_low = 30
-f_high = pycbc.pnutils.f_SchwarzISCO(mass1+mass2)
+hp, hc = get_td_waveform(approximant='SEOBNRv2', mass1=m1, mass2=m2,
+                 spin1x=0, spin1y=0, spin1z=s1z,
+                 spin2x=0, spin2y=0, spin2z=s2z,
+                 delta_t=(1./32768.), f_lower=30)
 
-inspiral_t, inspiral_f = pycbc.pnutils.get_inspiral_tf(trig_time, mass1, mass2, f_low, f_high)
+f = frequency_from_polarizations(hp, hc)
+amp = amplitude_from_polarizations(hp, hc)
+stop_idx = amp.abs_max_loc()[1]
+
+f = f[:stop_idx]
+
+inspiral_t = np.array(f.sample_times) + trig_time 
+inspiral_f = np.array(f.data)
 
 logging.info('Plotting')
 
@@ -97,7 +107,7 @@ if args.ranking_statistic == 'snr':
 elif args.ranking_statistic == 'newsnr':
     plt.suptitle('CBC trigger SNR = ' + str(snr[highest_idx]) + 
                     ", newSNR = " +str(newsnr[highest_idx]),fontsize=12)
-plt.title(str(mass1) + " - " + str(mass2) + " solar masses at GPS time " + str(trig_time),fontsize=12)
+plt.title(str(m1) + " - " + str(m2) + " solar masses at GPS time " + str(trig_time),fontsize=12)
 plt.hold(True)
 plt.plot(inspiral_t,inspiral_f)
 plt.savefig(args.output_file)
